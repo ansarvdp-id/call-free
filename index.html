@@ -3,177 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ভিডিপি খাবারের তালিকা</title>
+    <title>ইমেজ টু পিডিএফ কনভার্টার</title>
     <style>
         body {
-            font-family: 'SolaimanLipi', 'Nirmala UI', Arial, sans-serif;
+            font-family: 'SolaimanLipi', Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
             width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
             text-align: center;
-            color: #006400; /* Dark Green for Ansar/VDP vibe */
-            margin-bottom: 20px;
-            text-decoration: underline;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+
+        h1 {
+            color: #333;
             margin-bottom: 20px;
         }
-        th, td {
-            border: 1px solid #000;
-            padding: 12px;
-            text-align: center;
-            font-size: 16px;
-        }
-        th {
-            background-color: #2E7D32; /* Green Header */
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #555;
-        }
-        
-        /* Print Settings for A4 Landscape */
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 1cm;
-            }
-            body {
-                background-color: #fff;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none;
-                max-width: 100%;
-                padding: 0;
-            }
-            .no-print {
-                display: none;
-            }
-            th {
-                background-color: #2E7D32 !important;
-                -webkit-print-color-adjust: exact;
-                color: white !important;
-            }
-            tr:nth-child(even) {
-                background-color: #f2f2f2 !important;
-                -webkit-print-color-adjust: exact;
-            }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
         }
 
         .btn {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            padding: 10px;
-            background-color: #006400;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
+            border: 2px dashed #007bff;
+            color: #007bff;
+            background-color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            border: none;
+            transition: 0.3s;
         }
+
         .btn:hover {
-            background-color: #004d00;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        #preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .img-box {
+            position: relative;
+            width: 100px;
+            height: 140px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #eee;
+        }
+
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 5px;
+        }
+
+        .convert-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none; /* Hidden initially */
+        }
+
+        .convert-btn:hover {
+            background-color: #218838;
+        }
+
+        .loader {
+            display: none;
+            margin-top: 10px;
+            color: #555;
         }
     </style>
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-    <div class="container">
-        <h2>ভিডিপি প্রশিক্ষণার্থীদের সাপ্তাহিক খাদ্য তালিকা</h2>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 10%;">বার</th>
-                    <th style="width: 20%;">সকালের নাস্তা</th>
-                    <th style="width: 20%;">পাথেয় / স্ন্যাকস</th>
-                    <th style="width: 25%;">দুপুরের খাবার</th>
-                    <th style="width: 25%;">রাতের খাবার</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>রবিবার</strong></td>
-                    <td>খিচুড়ি, ডিম</td>
-                    <td>সিঙ্গাড়া, কলা</td>
-                    <td>ভাত, মুরগির মাংস, সবজি, ডাল</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>সোমবার</strong></td>
-                    <td>ভাত, সবজি, ডাল</td>
-                    <td>কলা, বনরুটি</td>
-                    <td>ভাত, সবজি, ডাল, মাছ</td>
-                    <td>ভাত, ডিম, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>মঙ্গলবার</strong></td>
-                    <td>ভাত, আলু ভর্তা, ডাল</td>
-                    <td>ছোলা, মুড়ি, ডিম</td>
-                    <td>ভাত, মুরগির মাংস, সবজি, ডাল</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>বুধবার</strong></td>
-                    <td>খিচুড়ি, ডিম</td>
-                    <td>কলা, বনরুটি</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                    <td>ভাত, মুরগির মাংস, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>বৃহস্পতিবার</strong></td>
-                    <td>ভাত, সবজি, ডাল</td>
-                    <td>ছোলা, মুড়ি</td>
-                    <td>ভাত, মুরগির মাংস, সবজি, ডাল</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>শুক্রবার</strong></td>
-                    <td>খিচুড়ি, ডিম</td>
-                    <td>—</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                    <td>ভাত, গরু/মুরগির মাংস, সবজি, ডাল</td>
-                </tr>
-                <tr>
-                    <td><strong>শনিবার</strong></td>
-                    <td>ভাত, আলু ভর্তা, ডাল</td>
-                    <td>বনরুটি, মিষ্টি</td>
-                    <td>ভাত, মুরগির মাংস, সবজি, ডাল</td>
-                    <td>ভাত, মাছ, সবজি, ডাল</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container">
+    <h1>ইমেজ টু পিডিএফ কনভার্টার</h1>
+    <p>একাধিক ছবি সিলেক্ট করুন এবং পিডিএফ তৈরি করুন</p>
 
-        <div class="footer">
-            <p>আনসার ও গ্রাম প্রতিরক্ষা বাহিনী (ভিডিপি)</p>
-        </div>
-
-        <button class="btn no-print" onclick="window.print()">তালিকাটি প্রিন্ট করুন</button>
+    <div class="upload-btn-wrapper">
+        <button class="btn">ছবি আপলোড করুন 📂</button>
+        <input type="file" id="imageInput" accept="image/*" multiple onchange="handleFiles()">
     </div>
+
+    <div id="preview-container"></div>
+
+    <button class="convert-btn" id="convertBtn" onclick="generatePDF()">PDF ডাউনলোড করুন ⬇️</button>
+    <div class="loader" id="loader">পিডিএফ তৈরি হচ্ছে... দয়া করে অপেক্ষা করুন।</div>
+</div>
+
+<script>
+    let selectedImages = [];
+    const { jsPDF } = window.jspdf;
+
+    // ফাইল হ্যান্ডেল করা এবং প্রিভিউ দেখানো
+    function handleFiles() {
+        const input = document.getElementById('imageInput');
+        const files = Array.from(input.files);
+        const previewContainer = document.getElementById('preview-container');
+        const convertBtn = document.getElementById('convertBtn');
+
+        if (files.length > 0) {
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // ইমেজ লিস্টে অ্যাড করা
+                    selectedImages.push(e.target.result);
+                    
+                    // প্রিভিউ তৈরি করা HTML এ 
+                    const div = document.createElement('div');
+                    div.className = 'img-box';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Image">
+                        <button class="remove-btn" onclick="removeImage(${selectedImages.length - 1}, this)">X</button>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+            convertBtn.style.display = "inline-block";
+        }
+        // ইনপুট রিসেট করা যাতে একই ফাইল আবার অ্যাড করা যায়
+        input.value = ''; 
+    }
+
+    // ইমেজ রিমুভ করার ফাংশন
+    function removeImage(index, btnElement) {
+        // এই সাধারণ ভার্সনে আমরা শুধু UI থেকে সরাচ্ছি এবং লিস্ট নাল করছি
+        // জটিলতা এড়াতে ইউজারকে আবার রিফ্রেশ করতে বলা ভালো, তবে এখানে আমরা সিম্পল রাখছি
+        btnElement.parentElement.remove();
+        selectedImages[index] = null; // মার্ক করা যে এটি ডিলিট হয়েছে
+
+        // বাটন লুকানো যদি সব ডিলিট হয়ে যায়
+        const remaining = document.querySelectorAll('.img-box');
+        if(remaining.length === 0) {
+            document.getElementById('convertBtn').style.display = 'none';
+            selectedImages = [];
+        }
+    }
+
+    // পিডিএফ জেনারেট ফাংশন
+    async function generatePDF() {
+        const loader = document.getElementById('loader');
+        loader.style.display = 'block';
+
+        // A4 সাইজ: 210mm x 297mm
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 10; // 10mm মার্জিন চারপাশে
+
+        let imageAddedCount = 0;
+
+        for (let i = 0; i < selectedImages.length; i++) {
+            const imgData = selectedImages[i];
+            
+            if (imgData === null) continue; // ডিলিট করা ইমেজ স্কিপ করা
+
+            if (imageAddedCount > 0) {
+                doc.addPage(); // প্রথম ইমেজের পর নতুন পেজ নেওয়া
+            }
+
+            // ইমেজ লোড করে ডাইমেনশন বের করা
+            const imgProps = await getImageProperties(imgData);
+            
+            // রেশিও ঠিক রেখে সাইজ ফিট করা
+            const availableWidth = pageWidth - (margin * 2);
+            const availableHeight = pageHeight - (margin * 2);
+            
+            let imgWidth = availableWidth;
+            let imgHeight = (imgProps.height * availableWidth) / imgProps.width;
+
+            // যদি হাইট পেজের চেয়ে বড় হয়ে যায়, তখন হাইট অনুযায়ী রিসাইজ করা
+            if (imgHeight > availableHeight) {
+                imgHeight = availableHeight;
+                imgWidth = (imgProps.width * availableHeight) / imgProps.height;
+            }
+
+            // পেজের মাঝখানে বসানো
+            const x = (pageWidth - imgWidth) / 2;
+            const y = (pageHeight - imgHeight) / 2;
+
+            doc.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight);
+            imageAddedCount++;
+        }
+
+        loader.style.display = 'none';
+        
+        if (imageAddedCount > 0) {
+            doc.save('my-images.pdf');
+        } else {
+            alert("কোনো ছবি পাওয়া যায়নি!");
+        }
+    }
+
+    // ইমেজের হাইট এবং উইডথ বের করার জন্য হেল্পার ফাংশন
+    function getImageProperties(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.width, height: img.height });
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+</script>
 
 </body>
 </html>
